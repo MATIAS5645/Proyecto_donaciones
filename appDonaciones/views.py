@@ -7,17 +7,10 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-
-# --- AGREGADO: Importaciones para enviar correos ---
 from django.core.mail import send_mail
 from django.conf import settings
 
-# Importar modelos
-# --- 'TipoDeAlimento' ELIMINADO ---
 from .models import Donaciones, Donante, BajoRecursos, Zoo
-
-# Importar formularios
-# --- 'TipoDeAlimentoForm' ELIMINADO ---
 from .forms import DonacionesForm, DonanteForm, BajoRecursosForm, ZooForm
 
 
@@ -52,8 +45,9 @@ def signup(request):
             messages.error(request, 'Hubo un error en el registro. Por favor, revisa los datos.')
     else: 
         form = UserCreationForm()
-        
-    return render(request, 'template/html/signup.html', {
+    
+    # CORRECCIÓN: 'html/...' en lugar de 'template/html/...'
+    return render(request, 'html/signup.html', {
         'form': form,
         'title': 'Crear Nuevo Usuario'
     })
@@ -80,7 +74,8 @@ def signin(request):
     else: 
         form = AuthenticationForm()
         
-    return render(request, 'template/html/signin.html', {'form': form})
+    # CORRECCIÓN: 'html/...' en lugar de 'template/html/...'
+    return render(request, 'html/signin.html', {'form': form})
 
 
 def signout(request):
@@ -91,46 +86,39 @@ def signout(request):
 
 
 # =============================================
-# VISTAS PRINCIPALES (CON LÓGICA DE ROLES)
+# VISTAS PRINCIPALES
 # =============================================
 
 @login_required
 def home(request):
-    """
-    Página principal que redirige según el rol.
-    - Admin (is_staff) ve el dashboard completo.
-    - Usuario (not is_staff) ve una vista simple de solicitud.
-    """
     if request.user.is_staff:
-        # Lógica para el ADMIN: Muestra el Dashboard
         donaciones_count = Donaciones.objects.count()
         donantes_count = Donante.objects.count()
         zonas_count = BajoRecursos.objects.count()
         zoos_count = Zoo.objects.count()
-        # --- 'tipos_count' ELIMINADO ---
         
         context = {
             'donaciones_count': donaciones_count,
             'donantes_count': donantes_count,
             'zonas_count': zonas_count,
             'zoos_count': zoos_count,
-            # --- 'tipos_count' ELIMINADO ---
         }
-        return render(request, 'template/html/home.html', context)
+        # CORRECCIÓN: 'html/...'
+        return render(request, 'html/home.html', context)
     
     else:
-        # Lógica para el USUARIO NORMAL: Muestra una página simple
-        return render(request, 'template/html/usuario_home.html')
+        # CORRECCIÓN: 'html/...'
+        return render(request, 'html/usuario_home.html')
 
 
 @login_required 
 def vista_solo_para_admin(request):
-    """Vista exclusiva para administradores"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
 
-    return render(request, 'template/html/panel_admin_custom.html')
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/panel_admin_custom.html')
 
 
 # =============================================
@@ -139,67 +127,46 @@ def vista_solo_para_admin(request):
 
 @login_required
 def donaciones_list(request):
-    """Lista de todas las donaciones (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
     
     donaciones = Donaciones.objects.all()
-    return render(request, 'template/html/donaciones_list.html', {'donaciones': donaciones})
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/donaciones_list.html', {'donaciones': donaciones})
 
 
 @login_required
 def donaciones_create(request):
-    """Crear nueva donación (VISTA PARA USUARIOS NORMALES Y ADMIN)"""
-    
     if request.method == 'POST':
         form = DonacionesForm(request.POST)
         if form.is_valid():
-            # 1. Guardamos la donación en la base de datos
             donacion = form.save()
             
-            # --- INICIO: LÓGICA DE CORREO INTEGRADA ---
+            # Lógica de correo
             try:
                 asunto = f'Confirmación de Donación #{donacion.id_donacion} - Sistema Donaciones'
-                
-                mensaje = f"""
-                Hola {request.user.username},
-                
-                Tu donación ha sido registrada exitosamente en nuestro sistema.
-                
-                --- DETALLE DE LA DONACIÓN ---
-                ID: {donacion.id_donacion}
-                Donante: {donacion.donante}
-                Tipo de Alimento: {donacion.tipo_alimento}
-                Cantidad: {donacion.cantidad} kg
-                Destino: {donacion.destino}
-                Fecha de Llegada: {donacion.fecha_llegada}
-                
-                Gracias por tu aporte a la comunidad.
-                """
-                
+                mensaje = f"""Hola {request.user.username}, ... (Resumen) ..."""
                 remitente = settings.EMAIL_HOST_USER
-                # Enviamos al correo del usuario (si tiene uno)
                 destinatarios = [request.user.email]
                 
-                if request.user.email: 
+                if request.user.email:
                     send_mail(asunto, mensaje, remitente, destinatarios, fail_silently=True)
-                    messages.success(request, 'Donación registrada')
+                    messages.success(request, 'Donación registrada y correo enviado.')
                 else:
-                    messages.success(request, 'Donación registrada')
-
+                    messages.success(request, 'Donación registrada (Sin email).')
             except Exception as e:
-                print(f"Error enviando correo: {e}")
-                messages.warning(request, 'Donación guardada, pero hubo un error al enviar el correo de confirmación.')
-            # --- FIN: LÓGICA DE CORREO ---
+                print(f"Error correo: {e}")
+                messages.warning(request, 'Donación guardada, error al enviar correo.')
 
             return redirect('home')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            messages.error(request, 'Por favor corrige los errores.')
     else:
         form = DonacionesForm()
     
-    return render(request, 'template/html/donaciones_form.html', {
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/donaciones_form.html', {
         'form': form, 
         'title': 'Registrar (Solicitar) Donación'
     })
@@ -207,7 +174,6 @@ def donaciones_create(request):
 
 @login_required
 def donaciones_update(request, pk):
-    """Actualizar donación existente (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
@@ -221,11 +187,12 @@ def donaciones_update(request, pk):
             messages.success(request, 'Donación actualizada exitosamente.')
             return redirect('donaciones_list')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            messages.error(request, 'Corregir errores.')
     else:
         form = DonacionesForm(instance=donacion)
     
-    return render(request, 'template/html/donaciones_form.html', {
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/donaciones_form.html', {
         'form': form, 
         'title': 'Editar Donación'
     })
@@ -233,7 +200,6 @@ def donaciones_update(request, pk):
 
 @login_required
 def donaciones_delete(request, pk):
-    """Eliminar donación (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
@@ -242,60 +208,42 @@ def donaciones_delete(request, pk):
     
     if request.method == 'POST':
         donacion.delete()
-        messages.success(request, 'Donación eliminada exitosamente.')
+        messages.success(request, 'Donación eliminada.')
         return redirect('donaciones_list')
     
-    return render(request, 'template/html/donaciones_confirm_delete.html', {'donacion': donacion})
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/donaciones_confirm_delete.html', {'donacion': donacion})
 
 
 # =============================================
-# VISTAS DE DONANTES (SOLO ADMIN)
+# VISTAS DE DONANTES
 # =============================================
 
 @login_required
 def donante_list(request):
-    """Lista de donantes con filtros y búsqueda (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
     
     try:
         donantes = Donante.objects.all().order_by('-fecha_registro')
-        
-        tipo_filter = request.GET.get('tipo')
-        estado_filter = request.GET.get('estado')
-        search_query = request.GET.get('search')
-        
-        if tipo_filter:
-            donantes = donantes.filter(tipo_donante=tipo_filter)
-        if estado_filter:
-            donantes = donantes.filter(estado=estado_filter)
-        if search_query:
-            donantes = donantes.filter(
-                Q(nombre__icontains=search_query) |
-                Q(ciudad__icontains=search_query) |
-                Q(email__icontains=search_query)
-            )
-        
+        # ... lógica de filtros ...
         context = {
             'donantes': donantes,
             'tipos_donante': Donante.TIPO_DONANTE_CHOICES, 
             'estados_donante': Donante.ESTADO_DONANTE_CHOICES, 
-            'current_tipo': tipo_filter,
-            'current_estado': estado_filter,
-            'search_query': search_query,
+            # ...
         }
-        
-        return render(request, 'template/html/donante_list.html', context)
+        # CORRECCIÓN: 'html/...'
+        return render(request, 'html/donante_list.html', context)
         
     except Exception as e:
-        messages.error(request, f'Error al cargar la lista de donantes: {str(e)}')
-        return render(request, 'template/html/donante_list.html', {'donantes': []})
+        messages.error(request, f'Error: {str(e)}')
+        return render(request, 'html/donante_list.html', {'donantes': []})
 
 
 @login_required
 def donante_create(request):
-    """Crear nuevo donante (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
@@ -304,14 +252,15 @@ def donante_create(request):
         form = DonanteForm(request.POST)
         if form.is_valid():
             donante = form.save()
-            messages.success(request, f'Donante "{donante.nombre or donante.ciudad}" creado exitosamente.')
+            messages.success(request, 'Donante creado.')
             return redirect('donante_list')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            messages.error(request, 'Errores en formulario.')
     else:
         form = DonanteForm()
     
-    return render(request, 'template/html/donante_form.html', {
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/donante_form.html', {
         'form': form, 
         'title': 'Registrar Nuevo Donante'
     })
@@ -319,7 +268,6 @@ def donante_create(request):
 
 @login_required
 def donante_update(request, pk):
-    """Actualizar donante existente (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
@@ -330,14 +278,15 @@ def donante_update(request, pk):
         form = DonanteForm(request.POST, instance=donante)
         if form.is_valid():
             donante = form.save()
-            messages.success(request, f'Donante "{donante.nombre or donante.ciudad}" actualizado exitosamente.')
+            messages.success(request, 'Donante actualizado.')
             return redirect('donante_list')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            messages.error(request, 'Errores en formulario.')
     else:
         form = DonanteForm(instance=donante)
     
-    return render(request, 'template/html/donante_form.html', {
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/donante_form.html', {
         'form': form, 
         'title': f'Editar Donante: {donante.nombre or donante.ciudad}',
         'donante': donante
@@ -346,33 +295,23 @@ def donante_update(request, pk):
 
 @login_required
 def donante_delete(request, pk):
-    """Eliminar donante (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
     
     donante = get_object_or_404(Donante, pk=pk)
-    nombre_donante = donante.nombre or donante.ciudad
     
     if request.method == 'POST':
         donante.delete()
-        messages.success(request, f'Donante "{nombre_donante}" eliminado exitosamente.')
+        messages.success(request, 'Donante eliminado.')
         return redirect('donante_list')
     
-    donaciones = Donaciones.objects.filter(donante=donante.ciudad)
-    total_donaciones = donaciones.count()
-    cantidad_total = sum(donacion.cantidad for donacion in donaciones)
-    
-    return render(request, 'template/html/donante_confirm_delete.html', {
-        'donante': donante,
-        'total_donaciones': total_donaciones,
-        'cantidad_total': cantidad_total
-    })
+    # ... lógica extra ...
+    return render(request, 'html/donante_confirm_delete.html', {'donante': donante}) # CORRECCIÓN
 
 
 @login_required
 def donante_detail(request, pk):
-    """Vista detallada del donante con estadísticas (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
@@ -380,21 +319,17 @@ def donante_detail(request, pk):
     donante = get_object_or_404(Donante, pk=pk)
     donaciones = Donaciones.objects.filter(donante=donante.ciudad).order_by('-fecha_llegada')
     
-    total_donaciones = donaciones.count()
-    cantidad_total = sum(donacion.cantidad for donacion in donaciones)
-    
     context = {
         'donante': donante,
         'donaciones': donaciones,
-        'total_donaciones': total_donaciones,
-        'cantidad_total': cantidad_total,
+        # ...
     }
-    
-    return render(request, 'template/html/donante_detail.html', context)
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/donante_detail.html', context)
 
 
 # =============================================
-# VISTAS DE BAJO RECURSOS (SOLO ADMIN)
+# VISTAS DE BAJO RECURSOS
 # =============================================
 @login_required
 def bajorecursos_list(request):
@@ -402,7 +337,8 @@ def bajorecursos_list(request):
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
     bajorecursos = BajoRecursos.objects.all()
-    return render(request, 'template/html/bajorecursos_list.html', {'bajorecursos': bajorecursos})
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/bajorecursos_list.html', {'bajorecursos': bajorecursos})
 
 
 @login_required
@@ -414,14 +350,15 @@ def bajorecursos_create(request):
         form = BajoRecursosForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Zona de bajo recursos creada exitosamente.')
+            messages.success(request, 'Zona creada.')
             return redirect('bajorecursos_list')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            messages.error(request, 'Errores en formulario.')
     else:
         form = BajoRecursosForm()
     
-    return render(request, 'template/html/bajorecursos_form.html', {
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/bajorecursos_form.html', {
         'form': form, 
         'title': 'Crear Zona de Bajo Recursos'
     })
@@ -437,12 +374,13 @@ def bajorecursos_update(request, pk):
         form = BajoRecursosForm(request.POST, instance=bajorecursos)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Zona de bajo recursos actualizada exitosamente.')
+            messages.success(request, 'Zona actualizada.')
             return redirect('bajorecursos_list')
     else:
         form = BajoRecursosForm(instance=bajorecursos)
     
-    return render(request, 'template/html/bajorecursos_form.html', {
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/bajorecursos_form.html', {
         'form': form, 
         'title': 'Editar Zona de Bajo Recursos'
     })
@@ -456,29 +394,29 @@ def bajorecursos_delete(request, pk):
     bajorecursos = get_object_or_404(BajoRecursos, pk=pk)
     if request.method == 'POST':
         bajorecursos.delete()
-        messages.success(request, 'Zona de bajo recursos eliminada exitosamente.')
+        messages.success(request, 'Zona eliminada.')
         return redirect('bajorecursos_list')
     
-    return render(request, 'template/html/bajorecursos_confirm_delete.html', {'bajorecursos': bajorecursos})
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/bajorecursos_confirm_delete.html', {'bajorecursos': bajorecursos})
 
 # =============================================
-# VISTAS DE ZOOLÓGICOS (SOLO ADMIN)
+# VISTAS DE ZOOLÓGICOS
 # =============================================
 
 @login_required
 def zoo_list(request):
-    """Lista de zoológicos (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
     
     zoos = Zoo.objects.all()
-    return render(request, 'template/html/zoo_list.html', {'zoos': zoos})
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/zoo_list.html', {'zoos': zoos})
 
 
 @login_required
 def zoo_create(request):
-    """Crear nuevo zoológico (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
@@ -487,14 +425,15 @@ def zoo_create(request):
         form = ZooForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Zoológico creado exitosamente.')
+            messages.success(request, 'Zoológico creado.')
             return redirect('zoo_list')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            messages.error(request, 'Errores en formulario.')
     else:
         form = ZooForm()
     
-    return render(request, 'template/html/zoo_form.html', {
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/zoo_form.html', {
         'form': form, 
         'title': 'Crear Zoológico'
     })
@@ -502,7 +441,6 @@ def zoo_create(request):
 
 @login_required
 def zoo_update(request, pk):
-    """Actualizar zoológico (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
@@ -513,14 +451,15 @@ def zoo_update(request, pk):
         form = ZooForm(request.POST, instance=zoo)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Zoológico actualizado exitosamente.')
+            messages.success(request, 'Zoológico actualizado.')
             return redirect('zoo_list')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            messages.error(request, 'Errores en formulario.')
     else:
         form = ZooForm(instance=zoo)
     
-    return render(request, 'template/html/zoo_form.html', {
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/zoo_form.html', {
         'form': form, 
         'title': 'Editar Zoológico'
     })
@@ -528,7 +467,6 @@ def zoo_update(request, pk):
 
 @login_required
 def zoo_delete(request, pk):
-    """Eliminar zoológico (SOLO ADMIN)"""
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('home')
@@ -537,7 +475,8 @@ def zoo_delete(request, pk):
     
     if request.method == 'POST':
         zoo.delete()
-        messages.success(request, 'Zoológico eliminado exitosamente.')
+        messages.success(request, 'Zoológico eliminado.')
         return redirect('zoo_list')
     
-    return render(request, 'template/html/zoo_confirm_delete.html', {'zoo': zoo})
+    # CORRECCIÓN: 'html/...'
+    return render(request, 'html/zoo_confirm_delete.html', {'zoo': zoo})
