@@ -51,7 +51,7 @@ ROOT_URLCONF = 'prjDonaciones.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "template"], # Corregida la sintaxis de ruta
+        'DIRS': [BASE_DIR / "template"], # Asegúrate de que tu carpeta se llame 'template' en la raíz
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,6 +80,7 @@ DATABASES = {
 }
 
 # Configuración para Render (Base de datos en la nube)
+# Esto sobreescribe la configuración anterior si estamos en el servidor de Render
 database_url = os.environ.get("DATABASE_URL")
 if database_url:
     DATABASES["default"] = dj_database_url.parse(database_url)
@@ -104,7 +105,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 
-# Configuración para que Whitenoise maneje los estilos
+# Configuración para que Whitenoise maneje los estilos en producción
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -129,7 +130,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-# Tus credenciales (Asegúrate de que sean correctas)
+# Tus credenciales
 EMAIL_HOST_USER = 'matias.gregorio5635@gmail.com' 
 EMAIL_HOST_PASSWORD = 'wuuqykrcxpdxgbcr' 
 
@@ -140,7 +141,7 @@ DEFAULT_FROM_EMAIL = 'Sistema de Donaciones <matias.gregorio5635@gmail.com>'
 RECAPTCHA_PUBLIC_KEY = '6Lf5dx4sAAAAAJwcqq73wgZHAki59_b321JlsMx0'
 RECAPTCHA_PRIVATE_KEY = '6Lf5dx4sAAAAAHSgifDFDZpVNp45qQNe0cZPuv7c'
 
-# Evitar errores de SSL en localhost
+# Evitar errores de SSL en localhost (entorno de desarrollo)
 OS_ENV = os.environ.get('OS_ENV', 'development')
 if OS_ENV == 'development':
     RECAPTCHA_use_ssl = False
