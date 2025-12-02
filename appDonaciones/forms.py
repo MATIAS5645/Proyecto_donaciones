@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Donaciones, Donante, BajoRecursos, Zoo, TipoDeAlimento
+from .models import Donaciones, Donante, BajoRecursos, Zoo
 import datetime
 
 # --- IMPORTACIONES PARA RECAPTCHA ---
@@ -85,13 +85,7 @@ class TipoDeAlimentoForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'}),
         label="Estado del Alimento"
     )
-    class Meta:
-        model = TipoDeAlimento
-        fields = ['perecible', 'no_perecibles', 'estado', 'fecha_caducidad']
-        widgets = {
-            'fecha_caducidad': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        }
-        labels = {'fecha_caducidad': 'Fecha de Caducidad'}
+   ######### labels = {'fecha_caducidad': 'Fecha de Caducidad'}
     def clean_perecible(self):
         perecible = self.cleaned_data.get('perecible')
         if not perecible: raise ValidationError("Debe seleccionar si es perecible o no")
