@@ -1,0 +1,19 @@
+# .gitignore
+# Archivos de Python compilados
+*.pyc
+__pycache__/
+
+# Base de datos local (¡Muy importante no subirla si tiene datos reales!)
+db.sqlite3
+
+# Carpetas de entornos virtuales (si las tienes)
+env/
+venv/
+.env
+
+# Archivos estáticos y media de usuario (opcional, depende de tu config)
+/static
+/media
+
+# Archivos del sistema operativo
+.DS_Store

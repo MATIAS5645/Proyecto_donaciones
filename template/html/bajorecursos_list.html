@@ -1,0 +1,50 @@
+{% extends 'template/html/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-hand-holding-usd me-2"></i>Lista de Zonas de Bajo Recursos</h1>
+    <a href="{% url 'bajorecursos_create' %}" class="btn btn-warning">
+        <i class="fas fa-plus me-1"></i>Nueva Zona
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ciudad</th>
+                <th>Donación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bajorecursos in bajorecursos %}
+            <tr>
+                <td><strong>#{{ bajorecursos.id_bajo }}</strong></td>
+                <td>{{ bajorecursos.ciudad }}</td>
+                <td><span class="badge bg-warning">{{ bajorecursos.donacion }}</span></td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'bajorecursos_update' bajorecursos.id_bajo %}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'bajorecursos_delete' bajorecursos.id_bajo %}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center py-4">
+                    <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No hay zonas de bajo recursos registradas</p>
+                    <a href="{% url 'bajorecursos_create' %}" class="btn btn-warning">Registrar Primera Zona</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'template/html/base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1><i class="fas fa-users me-2"></i>Gestión de Donantes</h1>
+        <p class="text-muted">Administra la información de todos los donantes registrados</p>
+    </div>
+    <a href="{% url 'donante_create' %}" class="btn btn-success">
+        <i class="fas fa-plus me-1"></i>Nuevo Donante
+    </a>
+</div>
+
+<!-- Filtros y Búsqueda -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Tipo de Donante</label>
+                <select name="tipo" class="form-select">
+                    <option value="">Todos los tipos</option>
+                    {% for tipo_val, tipo_label in tipos_donante %}
+                    <option value="{{ tipo_val }}" {% if current_tipo == tipo_val %}selected{% endif %}>
+                        {{ tipo_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Estado</label>
+                <select name="estado" class="form-select">
+                    <option value="">Todos los estados</option>
+                    {% for estado_val, estado_label in estados_donante %}
+                    <option value="{{ estado_val }}" {% if current_estado == estado_val %}selected{% endif %}>
+                        {{ estado_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Buscar</label>
+                <input type="text" name="search" class="form-control" placeholder="Nombre, ciudad o email..." 
+                       value="{{ search_query|default:'' }}">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-1"></i>Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de Donantes -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre/Razón Social</th>
+                        <th>Tipo</th>
+                        <th>Ciudad</th>
+                        <th>Contacto</th>
+                        <th>Estado</th>
+                        <th>Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for donante in donantes %}
+                    <tr>
+                        <td><strong>#{{ donante.id_donante }}</strong></td>
+                        <td>
+                            <strong>{{ donante.nombre|default:"Sin nombre" }}</strong>
+                            {% if donante.email %}
+                            <br><small class="text-muted">{{ donante.email }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if donante.tipo_donante == 'empresa' %}bg-primary
+                                {% elif donante.tipo_donante == 'organizacion' %}bg-success
+                                {% elif donante.tipo_donante == 'institucion' %}bg-info
+                                {% else %}bg-secondary{% endif %}">
+                                {{ get_tipo_display|default:donante.tipo_donante }}
+                            </span>
+                        </td>
+                        <td>{{ donante.ciudad }}</td>
+                        <td>
+                            {% if donante.telefono %}
+                            <i class="fas fa-phone me-1"></i>{{ donante.telefono }}
+                            {% else %}
+                            <span class="text-muted">Sin teléfono</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if donante.estado == 'activo' %}bg-success
+                                {% elif donante.estado == 'inactivo' %}bg-secondary
+                                {% else %}bg-warning{% endif %}">
+                                {{ get_estado_display|default:donante.estado }}
+                            </span>
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ donante.fecha_registro|date:"d/m/Y" }}</small>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'donante_update' donante.id_donante %}" class="btn btn-warning btn-sm"
+                                   title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'donante_delete' donante.id_donante %}" class="btn btn-danger btn-sm"
+                                   title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4">
+                            <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No hay donantes registrados</p>
+                            <a href="{% url 'donante_create' %}" class="btn btn-success">Registrar Primer Donante</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

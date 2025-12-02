@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+        .header { background-color: #0d6efd; color: white; padding: 15px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .table th, .table td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        .footer { text-align: center; font-size: 12px; color: #777; margin-top: 20px; }
+        .highlight { color: #0d6efd; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>¡Donación Recibida!</h2>
+        </div>
+        <div class="content">
+            <p>Hola <strong>{{ user.username }}</strong>,</p>
+            <p>Tu donación ha sido registrada exitosamente en nuestro sistema. Agradecemos enormemente tu aporte.</p>
+            
+            <h3>📄 Detalle del Registro</h3>
+            <table class="table">
+                <tr>
+                    <th>ID Registro:</th>
+                    <td class="highlight">#{{ donacion.id_donacion }}</td>
+                </tr>
+                <tr>
+                    <th>Donante:</th>
+                    <td>{{ donacion.donante }}</td>
+                </tr>
+                <tr>
+                    <th>Tipo de Alimento:</th>
+                    <td>{{ donacion.tipo_alimento }}</td>
+                </tr>
+                <tr>
+                    <th>Cantidad:</th>
+                    <td>{{ donacion.cantidad }} kg</td>
+                </tr>
+                <tr>
+                    <th>Destino:</th>
+                    <td>{{ donacion.destino }}</td>
+                </tr>
+                <tr>
+                    <th>Fecha:</th>
+                    <td>{{ donacion.fecha_llegada|date:"d/m/Y" }}</td>
+                </tr>
+            </table>
+            
+            <p style="margin-top: 20px;">Nuestro equipo de logística coordinará los siguientes pasos.</p>
+        </div>
+        <div class="footer">
+            <p>Este es un mensaje automático del Sistema de Gestión de Donaciones.</p>
+            <p>&copy; 2025 Proyecto Donaciones</p>
+        </div>
+    </div>
+</body>
+</html>

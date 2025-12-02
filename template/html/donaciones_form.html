@@ -1,0 +1,62 @@
+{% extends 'template/html/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title mb-0">{{ title }}</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    {{ form.media }}
+                    
+                    {% for field in form %}
+                    <div class="mb-3">
+                        
+                        {# 💡 Excluir el label del captcha para una mejor presentación #}
+                        {% if field.name != 'captcha' %}
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {% endif %}
+
+                        {{ field }}
+                        
+                        {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        
+                        {# Mostrar errores para todos los campos, incluido captcha #}
+                        {% if field.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ field.errors }}
+                        </div>
+                        {% endif %}
+                        
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <button type="submit" class="btn btn-success me-md-2">
+                            <i class="fas fa-save me-1"></i>Guardar
+                        </button>
+                        <a href="{% url 'donaciones_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

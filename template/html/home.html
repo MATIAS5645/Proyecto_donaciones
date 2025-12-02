@@ -1,0 +1,140 @@
+{% extends 'template/html/base.html' %}
+
+{% block content %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    /* Estilo para el contenedor del mapa */
+    #mapaSeguimiento { 
+        height: 400px; 
+        width: 100%; 
+        border-radius: 8px;
+    }
+</style>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row mb-3">
+    <div class="col-md-12 text-end">
+        <span class="navbar-text me-3">
+            ¡Hola, <strong>{{ user.username }}</strong>! (Admin)
+        </span>
+        <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-sm">Cerrar Sesión</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 text-center mb-5">
+        <h1 class="display-4">Panel de Administración</h1>
+        <p class="lead">Donatech</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-3 mb-4">
+        <div class="card card-donaciones">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-donate me-2"></i>Donaciones</h5>
+                <a href="{% url 'donaciones_list' %}" class="btn btn-primary">Gestionar Donaciones</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card card-donantes">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-users me-2"></i>Donantes</h5>
+                <a href="{% url 'donante_list' %}" class="btn btn-success">Gestionar Donantes</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card card-bajorecursos">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-hand-holding-usd me-2"></i>Bajo Recursos</h5>
+                <a href="{% url 'bajorecursos_list' %}" class="btn btn-warning">Gestionar Zonas</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card card-zoo">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-paw me-2"></i>Zoológicos</h5>
+                <a href="{% url 'zoo_list' %}" class="btn btn-info">Gestionar Zoológicos</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Centro principal</h5>
+            </div>
+            <div class="card-body">
+                <div id="mapaSeguimiento"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <h3 class="card-title">Estadísticas Rápidas</h3>
+                <div class="row mt-4">
+                    <div class="col-md-3"><h4 class="text-primary">{{ donaciones_count }}</h4><p class="text-muted">Donaciones</p></div>
+                    <div class="col-md-3"><h4 class="text-success">{{ donantes_count }}</h4><p class="text-muted">Donantes</p></div>
+                    <div class="col-md-3"><h4 class="text-warning">{{ zonas_count }}</h4><p class="text-muted">Zonas</p></div>
+                    <div class="col-md-3"><h4 class="text-info">{{ zoos_count }}</h4><p class="text-muted">Zoológicos</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="card border-warning shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Acciones de Administrador</h5>
+            </div>
+            <div class="card-body text-center">
+                <p class="card-text">Herramientas solo visibles para ti.</p>
+                <a href="/admin/" class="btn btn-dark" target="_blank">
+                    <i class="fas fa-users-cog me-2"></i>Admin de Django (Avanzado)
+                </a>
+                <a href="{% url 'signup' %}" class="btn btn-success">
+                    <i class="fas fa-user-plus me-2"></i>Crear Nuevo Usuario
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Inicializar el mapa centrado en Santiago (o coordenadas por defecto)
+    var map = L.map('mapaSeguimiento').setView([-33.4489, -70.6693], 12);
+
+    // Cargar capa de OpenStreetMap
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // Ejemplo: Agregar un marcador en el centro (puedes dinamizar esto con Django más adelante)
+    L.marker([-33.4489, -70.6693]).addTo(map)
+        .bindPopup('<b>Centro de Acopio</b><br>Santiago Centro')
+        .openPopup();
+</script>
+
+{% endblock %}

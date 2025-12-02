@@ -1,0 +1,29 @@
+{% extends 'template/html/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mt-5 shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">{{ title|default:"Crear Cuenta" }}</h2>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    
+                    {{ form.as_p }}
+                
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">Crear Usuario</de un </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

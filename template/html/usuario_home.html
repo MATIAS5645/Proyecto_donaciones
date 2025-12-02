@@ -1,0 +1,44 @@
+{% extends 'template/html/base.html' %}
+
+{% block content %}
+
+{% if messages %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<div class="row mb-5">
+    <div class="col-md-12 text-end">
+        <span class="navbar-text me-3">
+            ¡Hola, <strong>{{ user.username }}</strong>!
+        </span>
+        <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-sm">Cerrar Sesión</a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <div class="card shadow-lg p-5">
+            <h1 class="display-4">Bienvenido al Sistema de Donaciones</h1>
+            <p class="lead mt-3">
+                Gracias por tu interés en ayudar. Puedes registrar una nueva donación
+                haciendo clic en el botón de abajo.
+            </p>
+            <hr class="my-4">
+            
+            <a href="{% url 'donaciones_create' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-donate me-2"></i> Registrar (Solicitar) una Donación
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
