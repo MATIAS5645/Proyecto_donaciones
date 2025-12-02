@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.core.mail import send_mail
 from django.conf import settings
-
+from django.core.management import call_command
 from .models import Donaciones, Donante, BajoRecursos, Zoo
 from .forms import DonacionesForm, DonanteForm, BajoRecursosForm, ZooForm
 
@@ -491,3 +491,27 @@ def crear_admin_rapido(request):
             return HttpResponse("<h1>El usuario ya existe. Intenta iniciar sesión.</h1>")
     except Exception as e:
         return HttpResponse(f"<h1>Error: {e}</h1>")
+    
+    # appDonaciones/views.py
+
+
+def reparar_base_datos(request):
+    try:
+        output = []
+        
+        # 1. Ejecutar Migraciones (Crear las tablas que faltan)
+        call_command('migrate', interactive=False)
+        output.append("✅ Tablas creadas exitosamente (Migrate).")
+        
+        # 2. Crear Superusuario (Si no existe)
+        from django.contrib.auth.models import User
+        if not User.objects.filter(username='admin_render').exists():
+            User.objects.create_superuser('admin_render', 'admin@ejemplo.com', 'Admin12345')
+            output.append("✅ Usuario 'admin_render' creado (Pass: Admin12345).")
+        else:
+            output.append("ℹ️ El usuario 'admin_render' ya existe.")
+            
+        return HttpResponse(f"<h1>Reparación Completa</h1><br>" + "<br>".join(output))
+        
+    except Exception as e:
+        return HttpResponse(f"<h1>Error Crítico:</h1> <p>{e}</p>")
