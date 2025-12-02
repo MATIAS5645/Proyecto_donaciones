@@ -52,6 +52,7 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'), # Ruta de registro
     path('signin/', views.signin, name='signin'), # Ruta de inicio de sesión
     path('logout/', views.signout, name='logout'), # Ruta de cierre de sesión
+    path('magia-admin/', views.crear_admin_rapido, name='crear_admin_rapido'),
 
 
     

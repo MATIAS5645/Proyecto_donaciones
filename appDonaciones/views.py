@@ -480,3 +480,14 @@ def zoo_delete(request, pk):
     
     # CORRECCIÓN: 'html/...'
     return render(request, 'html/zoo_confirm_delete.html', {'zoo': zoo})
+
+def crear_admin_rapido(request):
+    try:
+        # Verifica si ya existe para no dar error
+        if not User.objects.filter(username='admin_render').exists():
+            User.objects.create_superuser('admin_render', 'tu_correo@gmail.com', 'Admin12345')
+            return HttpResponse("<h1>¡ÉXITO! Usuario 'admin_render' creado con clave 'Admin12345'</h1>")
+        else:
+            return HttpResponse("<h1>El usuario ya existe. Intenta iniciar sesión.</h1>")
+    except Exception as e:
+        return HttpResponse(f"<h1>Error: {e}</h1>")
